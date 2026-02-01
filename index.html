@@ -1,51 +1,39 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <title>Broma</title>
-  <style>
-    body {
-      background: black;
-      color: #00ff00;
-      font-family: monospace;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
-      text-align: center;
-    }
-    h1, p {
-      margin: 10px 0;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login / Registro</title>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
+    <div class="container">
+        <div class="form-container">
+            <!-- Formulario de Login -->
+            <div id="login-form" class="form-box">
+                <h2>Iniciar Sesión</h2>
+                <div id="login-message" class="message"></div>
+                <input type="email" id="login-email" placeholder="Email" required>
+                <input type="password" id="login-password" placeholder="Contraseña" required>
+                <button id="login-btn">Entrar</button>
+                <p class="toggle-text">¿No tienes cuenta? <span id="show-register">Regístrate aquí</span></p>
+            </div>
 
-  <div id="contenido">
-    <h1 id="titulo">BIENVENIDO</h1>
-  </div>
+            <!-- Formulario de Registro -->
+            <div id="register-form" class="form-box hidden">
+                <h2>Crear Cuenta</h2>
+                <div id="register-message" class="message"></div>
+                <input type="email" id="register-email" placeholder="Email" required>
+                <input type="password" id="register-password" placeholder="Contraseña (mínimo 6 caracteres)" required>
+                <input type="password" id="register-confirm" placeholder="Confirmar Contraseña" required>
+                <button id="register-btn">Registrarse</button>
+                <p class="toggle-text">¿Ya tienes cuenta? <span id="show-login">Inicia sesión aquí</span></p>
+            </div>
+        </div>
+    </div>
 
-  <script>
-    const contenido = document.getElementById("contenido");
-
-    setTimeout(() => {
-      contenido.innerHTML += "<p>EXTRAYENDO IP...</p>";
-    }, 2000);
-
-    setTimeout(() => {
-      contenido.innerHTML += `
-        <p>
-          INFORMACIÓN DETECTADA:<br>
-          NOMBRE: DANI MARMOY<br>
-          CIUDAD: BARCELONA, MATARÓ
-        </p>
-      `;
-    }, 4000);
-
-    setTimeout(() => {
-      contenido.innerHTML += "<p>ES BROMA 😭 NO ME MATES NO HICE NADA</p>";
-    }, 6000);
-  </script>
-
+    <!-- Firebase SDK -->
+    <script type="module" src="app.js"></script>
 </body>
 </html>
+
