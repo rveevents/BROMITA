@@ -1,16 +1,107 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Terminal Hacker</title>
+<style>
+body {
+    background: black;
+    color: #00ff00;
+    font-family: "Courier New", monospace;
+    font-size: 20px;
+    padding: 40px;
+    overflow: hidden;
+}
+
+#terminal::after {
+    content: "_";
+    animation: blink 1s infinite;
+}
+
+@keyframes blink {
+    0% {opacity:1;}
+    50% {opacity:0;}
+    100% {opacity:1;}
+}
+
+.startScreen {
+    position: fixed;
+    inset: 0;
+    background: black;
+    color: #00ff00;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 24px;
+    cursor: pointer;
+    z-index: 9999;
+}
+
+.bsod {
+    position: fixed;
+    inset: 0;
+    background: #0078D7;
+    color: white;
+    font-family: Segoe UI, sans-serif;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 80px;
+    font-size: 22px;
+}
+
+.loadingDots::after {
+    content: "";
+    animation: dots 1.5s infinite;
+}
+
+@keyframes dots {
+    0% {content: "";}
+    33% {content: ".";}
+    66% {content: "..";}
+    100% {content: "...";}
+}
+
+.windowsBoot {
+    position: fixed;
+    inset: 0;
+    background: black;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    color: white;
+    font-family: sans-serif;
+}
+
+.logo {
+    width: 120px;
+    height: 120px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 5px;
+    margin-bottom: 40px;
+}
+
+.logo div {
+    background: #00A4EF;
+}
+</style>
+</head>
+<body>
+
+<div class="startScreen" id="startScreen">
+CLICK PARA INICIAR SISTEMA
+</div>
+
+<div id="terminal"></div>
+
 <script>
 const startScreen = document.getElementById("startScreen");
 const terminal = document.getElementById("terminal");
 let audioContext;
 
-function goFullScreen() {
-    if (!document.fullscreenElement) {
-        document.documentElement.requestFullscreen().catch(err => {
-            console.log("Error al entrar en pantalla completa:", err);
-        });
-    }
-}
-
+// Beep por cada letra
 function beep(freq = 800, duration = 0.03, volume = 0.05) {
     const oscillator = audioContext.createOscillator();
     const gain = audioContext.createGain();
@@ -23,6 +114,7 @@ function beep(freq = 800, duration = 0.03, volume = 0.05) {
     oscillator.stop(audioContext.currentTime + duration);
 }
 
+// Escritura letra por letra
 function typeText(text, speed = 40) {
     return new Promise(resolve => {
         let i = 0;
@@ -41,30 +133,18 @@ function typeText(text, speed = 40) {
     });
 }
 
+// Sonido crash
 function crashSound() {
     beep(60, 1, 0.4);
 }
 
+// Pantalla azul completa
 function showBSOD() {
-
-    goFullScreen(); // 👈 Aquí se activa pantalla completa real
-
     document.body.innerHTML = `
-    <div style="
-        position:fixed;
-        inset:0;
-        background:#0078D7;
-        color:white;
-        font-family:Segoe UI, sans-serif;
-        display:flex;
-        flex-direction:column;
-        justify-content:center;
-        padding:80px;
-        font-size:22px;">
-        
+    <div class="bsod">
         <div style="font-size:80px;">:(</div>
         <p>Tu PC ha tenido un problema y necesita reiniciarse.</p>
-        <p>Estamos recopilando información del error...</p>
+        <p class="loadingDots">Recopilando información del error</p>
         <br>
         <p>ERROR CODE: CRITICAL_PROCESS_DIED</p>
         <p id="percent">0% completado</p>
@@ -82,37 +162,20 @@ function showBSOD() {
     }, 400);
 }
 
+// Pantalla de arranque Windows
 function showBootScreen() {
     document.body.innerHTML = `
-    <div style="
-        position:fixed;
-        inset:0;
-        background:black;
-        display:flex;
-        flex-direction:column;
-        justify-content:center;
-        align-items:center;
-        color:white;
-        font-family:sans-serif;">
-        
-        <div style="
-            width:120px;
-            height:120px;
-            display:grid;
-            grid-template-columns:1fr 1fr;
-            gap:6px;
-            margin-bottom:40px;">
-            <div style="background:#00A4EF;"></div>
-            <div style="background:#00A4EF;"></div>
-            <div style="background:#00A4EF;"></div>
-            <div style="background:#00A4EF;"></div>
+    <div class="windowsBoot">
+        <div class="logo">
+            <div></div><div></div>
+            <div></div><div></div>
         </div>
-
         <p>Cargando sistema...</p>
     </div>
     `;
 }
 
+// Mensaje final de broma
 function showJoke() {
     document.body.innerHTML = `
     <div style="
@@ -129,7 +192,14 @@ function showJoke() {
     </div>`;
 }
 
+// Todo el flujo principal
 startScreen.addEventListener("click", async () => {
+
+    // 🔹 Activamos pantalla completa justo al click
+    if (!document.fullscreenElement) {
+        await document.documentElement.requestFullscreen().catch(err => console.log(err));
+    }
+
     startScreen.style.display = "none";
     audioContext = new (window.AudioContext || window.webkitAudioContext)();
 
@@ -157,3 +227,6 @@ startScreen.addEventListener("click", async () => {
     }, 1000);
 });
 </script>
+
+</body>
+</html>
