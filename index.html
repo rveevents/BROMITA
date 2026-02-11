@@ -1,117 +1,15 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-<meta charset="UTF-8">
-<title>Terminal</title>
-
-<style>
-body {
-    background: black;
-    color: #00ff00;
-    font-family: "Courier New", monospace;
-    font-size: 20px;
-    padding: 40px;
-    overflow: hidden;
-}
-
-#terminal::after {
-    content: "_";
-    animation: blink 1s infinite;
-}
-
-@keyframes blink {
-    0% {opacity:1;}
-    50% {opacity:0;}
-    100% {opacity:1;}
-}
-
-.startScreen {
-    position: fixed;
-    inset: 0;
-    background: black;
-    color: #00ff00;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    font-size: 24px;
-    cursor: pointer;
-    z-index: 9999;
-}
-
-.errorWindow {
-    position: absolute;
-    background: #111;
-    border: 2px solid red;
-    color: red;
-    padding: 10px;
-    width: 220px;
-    font-size: 14px;
-    box-shadow: 0 0 10px red;
-}
-
-.bsod {
-    position: fixed;
-    inset: 0;
-    background: #0078D7;
-    color: white;
-    font-family: Segoe UI, sans-serif;
-    padding: 60px;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    font-size: 22px;
-}
-
-.loadingDots::after {
-    content: "";
-    animation: dots 1.5s infinite;
-}
-
-@keyframes dots {
-    0% {content: "";}
-    33% {content: ".";}
-    66% {content: "..";}
-    100% {content: "...";}
-}
-
-.windowsBoot {
-    position: fixed;
-    inset: 0;
-    background: black;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    color: white;
-    font-family: sans-serif;
-}
-
-.logo {
-    width: 120px;
-    height: 120px;
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 5px;
-    margin-bottom: 40px;
-}
-
-.logo div {
-    background: #00A4EF;
-}
-</style>
-</head>
-<body>
-
-<div class="startScreen" id="startScreen">
-CLICK PARA INICIAR SISTEMA
-</div>
-
-<div id="terminal"></div>
-
 <script>
 const startScreen = document.getElementById("startScreen");
 const terminal = document.getElementById("terminal");
 let audioContext;
+
+function goFullScreen() {
+    if (!document.fullscreenElement) {
+        document.documentElement.requestFullscreen().catch(err => {
+            console.log("Error al entrar en pantalla completa:", err);
+        });
+    }
+}
 
 function beep(freq = 800, duration = 0.03, volume = 0.05) {
     const oscillator = audioContext.createOscillator();
@@ -148,25 +46,68 @@ function crashSound() {
 }
 
 function showBSOD() {
+
+    goFullScreen(); // 👈 Aquí se activa pantalla completa real
+
     document.body.innerHTML = `
-    <div class="bsod">
-        <h1>:(</h1>
+    <div style="
+        position:fixed;
+        inset:0;
+        background:#0078D7;
+        color:white;
+        font-family:Segoe UI, sans-serif;
+        display:flex;
+        flex-direction:column;
+        justify-content:center;
+        padding:80px;
+        font-size:22px;">
+        
+        <div style="font-size:80px;">:(</div>
         <p>Tu PC ha tenido un problema y necesita reiniciarse.</p>
-        <p class="loadingDots">Recopilando información del error</p>
+        <p>Estamos recopilando información del error...</p>
         <br>
         <p>ERROR CODE: CRITICAL_PROCESS_DIED</p>
-        <p>0% completado</p>
+        <p id="percent">0% completado</p>
     </div>
     `;
+
+    let percent = 0;
+    const interval = setInterval(() => {
+        percent += Math.floor(Math.random() * 10);
+        if (percent >= 100) {
+            percent = 100;
+            clearInterval(interval);
+        }
+        document.getElementById("percent").innerText = percent + "% completado";
+    }, 400);
 }
 
 function showBootScreen() {
     document.body.innerHTML = `
-    <div class="windowsBoot">
-        <div class="logo">
-            <div></div><div></div>
-            <div></div><div></div>
+    <div style="
+        position:fixed;
+        inset:0;
+        background:black;
+        display:flex;
+        flex-direction:column;
+        justify-content:center;
+        align-items:center;
+        color:white;
+        font-family:sans-serif;">
+        
+        <div style="
+            width:120px;
+            height:120px;
+            display:grid;
+            grid-template-columns:1fr 1fr;
+            gap:6px;
+            margin-bottom:40px;">
+            <div style="background:#00A4EF;"></div>
+            <div style="background:#00A4EF;"></div>
+            <div style="background:#00A4EF;"></div>
+            <div style="background:#00A4EF;"></div>
         </div>
+
         <p>Cargando sistema...</p>
     </div>
     `;
@@ -175,14 +116,15 @@ function showBootScreen() {
 function showJoke() {
     document.body.innerHTML = `
     <div style="
+        position:fixed;
+        inset:0;
         background:black;
         color:#00ff00;
         font-family:Courier New;
         font-size:30px;
         display:flex;
         justify-content:center;
-        align-items:center;
-        height:100vh;">
+        align-items:center;">
         ES BROMA 😭 NO ME MATES NO HICE NADA
     </div>`;
 }
@@ -211,11 +153,7 @@ startScreen.addEventListener("click", async () => {
             setTimeout(() => {
                 showJoke();
             }, 4000);
-        }, 5000);
+        }, 6000);
     }, 1000);
 });
 </script>
-
-</body>
-</html>
-
