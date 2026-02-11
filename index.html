@@ -5,42 +5,55 @@
 <title>Terminal</title>
 
 <style>
-    body {
-        background: black;
-        color: #00ff00;
-        font-family: "Courier New", monospace;
-        font-size: 22px;
-        padding: 40px;
-    }
+body {
+    background: black;
+    color: #00ff00;
+    font-family: "Courier New", monospace;
+    font-size: 20px;
+    padding: 40px;
+    overflow: hidden;
+}
 
-    #terminal::after {
-        content: "_";
-        animation: blink 1s infinite;
-    }
+#terminal::after {
+    content: "_";
+    animation: blink 1s infinite;
+}
 
-    @keyframes blink {
-        0% { opacity: 1; }
-        50% { opacity: 0; }
-        100% { opacity: 1; }
-    }
+@keyframes blink {
+    0% {opacity:1;}
+    50% {opacity:0;}
+    100% {opacity:1;}
+}
 
-    .startScreen {
-        position: fixed;
-        inset: 0;
-        background: black;
-        color: #00ff00;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        font-size: 24px;
-        cursor: pointer;
-    }
+.startScreen {
+    position: fixed;
+    inset: 0;
+    background: black;
+    color: #00ff00;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 24px;
+    cursor: pointer;
+    z-index: 9999;
+}
+
+.errorWindow {
+    position: absolute;
+    background: #111;
+    border: 2px solid red;
+    color: red;
+    padding: 10px;
+    width: 220px;
+    font-size: 14px;
+    box-shadow: 0 0 10px red;
+}
 </style>
 </head>
 <body>
 
 <div class="startScreen" id="startScreen">
-    CLICK PARA INICIAR SISTEMA
+CLICK PARA INICIAR SISTEMA
 </div>
 
 <div id="terminal"></div>
@@ -51,20 +64,16 @@ const terminal = document.getElementById("terminal");
 
 let audioContext;
 
-function beep() {
+function beep(freq = 800, duration = 0.03, volume = 0.05) {
     const oscillator = audioContext.createOscillator();
     const gain = audioContext.createGain();
-
     oscillator.type = "square";
-    oscillator.frequency.setValueAtTime(800, audioContext.currentTime);
-
-    gain.gain.setValueAtTime(0.05, audioContext.currentTime);
-
+    oscillator.frequency.setValueAtTime(freq, audioContext.currentTime);
+    gain.gain.setValueAtTime(volume, audioContext.currentTime);
     oscillator.connect(gain);
     gain.connect(audioContext.destination);
-
     oscillator.start();
-    oscillator.stop(audioContext.currentTime + 0.03);
+    oscillator.stop(audioContext.currentTime + duration);
 }
 
 function typeText(text, speed = 40) {
@@ -87,9 +96,55 @@ function typeText(text, speed = 40) {
     });
 }
 
+function errorSound() {
+    beep(200, 0.4, 0.2);
+    setTimeout(() => beep(150, 0.4, 0.2), 200);
+}
+
+function crashSound() {
+    beep(60, 1, 0.4);
+}
+
+function spawnErrors() {
+    let count = 0;
+    const interval = setInterval(() => {
+        const div = document.createElement("div");
+        div.className = "errorWindow";
+        div.style.left = Math.random() * window.innerWidth + "px";
+        div.style.top = Math.random() * window.innerHeight + "px";
+        div.innerHTML = `
+        SYSTEM FAILURE<br>
+        ERROR CODE: 0x${Math.floor(Math.random()*999999).toString(16).toUpperCase()}<br>
+        MEMORY CORRUPTION DETECTED
+        `;
+        document.body.appendChild(div);
+
+        beep(300, 0.05, 0.1);
+
+        count++;
+        if (count > 40) {
+            clearInterval(interval);
+            crashSound();
+            setTimeout(() => {
+                document.body.innerHTML = `
+                <div style="
+                    background:black;
+                    color:#00ff00;
+                    font-family:Courier New;
+                    font-size:30px;
+                    display:flex;
+                    justify-content:center;
+                    align-items:center;
+                    height:100vh;">
+                    ES BROMA 😭 NO ME MATES NO HICE NADA
+                </div>`;
+            }, 1200);
+        }
+    }, 150);
+}
+
 startScreen.addEventListener("click", async () => {
     startScreen.style.display = "none";
-
     audioContext = new (window.AudioContext || window.webkitAudioContext)();
 
     await typeText("BIENVENIDO", 60);
@@ -101,11 +156,17 @@ startScreen.addEventListener("click", async () => {
     await typeText("INFORMACIÓN DETECTADA:", 50);
     await typeText("NOMBRE: DANI MARMOY", 50);
     await typeText("CIUDAD: BARCELONA, MATARÓ", 50);
-    await new Promise(r => setTimeout(r, 2000));
+    await new Promise(r => setTimeout(r, 1500));
 
-    await typeText("ES BROMA NO ME MATES NO HICE NADA", 60);
+    errorSound();
+    await typeText("ERROR CRÍTICO DEL SISTEMA", 50);
+    await typeText("ACCESO NO AUTORIZADO DETECTADO", 50);
+    await new Promise(r => setTimeout(r, 1000));
+
+    spawnErrors();
 });
 </script>
 
 </body>
 </html>
+
