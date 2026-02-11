@@ -48,6 +48,56 @@ body {
     font-size: 14px;
     box-shadow: 0 0 10px red;
 }
+
+.bsod {
+    position: fixed;
+    inset: 0;
+    background: #0078D7;
+    color: white;
+    font-family: Segoe UI, sans-serif;
+    padding: 60px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    font-size: 22px;
+}
+
+.loadingDots::after {
+    content: "";
+    animation: dots 1.5s infinite;
+}
+
+@keyframes dots {
+    0% {content: "";}
+    33% {content: ".";}
+    66% {content: "..";}
+    100% {content: "...";}
+}
+
+.windowsBoot {
+    position: fixed;
+    inset: 0;
+    background: black;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    color: white;
+    font-family: sans-serif;
+}
+
+.logo {
+    width: 120px;
+    height: 120px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 5px;
+    margin-bottom: 40px;
+}
+
+.logo div {
+    background: #00A4EF;
+}
 </style>
 </head>
 <body>
@@ -61,7 +111,6 @@ CLICK PARA INICIAR SISTEMA
 <script>
 const startScreen = document.getElementById("startScreen");
 const terminal = document.getElementById("terminal");
-
 let audioContext;
 
 function beep(freq = 800, duration = 0.03, volume = 0.05) {
@@ -82,9 +131,7 @@ function typeText(text, speed = 40) {
         function typing() {
             if (i < text.length) {
                 terminal.innerHTML += text.charAt(i);
-                if (text.charAt(i) !== " " && text.charAt(i) !== "\n") {
-                    beep();
-                }
+                if (text.charAt(i) !== " " && text.charAt(i) !== "\n") beep();
                 i++;
                 setTimeout(typing, speed);
             } else {
@@ -96,51 +143,48 @@ function typeText(text, speed = 40) {
     });
 }
 
-function errorSound() {
-    beep(200, 0.4, 0.2);
-    setTimeout(() => beep(150, 0.4, 0.2), 200);
-}
-
 function crashSound() {
     beep(60, 1, 0.4);
 }
 
-function spawnErrors() {
-    let count = 0;
-    const interval = setInterval(() => {
-        const div = document.createElement("div");
-        div.className = "errorWindow";
-        div.style.left = Math.random() * window.innerWidth + "px";
-        div.style.top = Math.random() * window.innerHeight + "px";
-        div.innerHTML = `
-        SYSTEM FAILURE<br>
-        ERROR CODE: 0x${Math.floor(Math.random()*999999).toString(16).toUpperCase()}<br>
-        MEMORY CORRUPTION DETECTED
-        `;
-        document.body.appendChild(div);
+function showBSOD() {
+    document.body.innerHTML = `
+    <div class="bsod">
+        <h1>:(</h1>
+        <p>Tu PC ha tenido un problema y necesita reiniciarse.</p>
+        <p class="loadingDots">Recopilando información del error</p>
+        <br>
+        <p>ERROR CODE: CRITICAL_PROCESS_DIED</p>
+        <p>0% completado</p>
+    </div>
+    `;
+}
 
-        beep(300, 0.05, 0.1);
+function showBootScreen() {
+    document.body.innerHTML = `
+    <div class="windowsBoot">
+        <div class="logo">
+            <div></div><div></div>
+            <div></div><div></div>
+        </div>
+        <p>Cargando sistema...</p>
+    </div>
+    `;
+}
 
-        count++;
-        if (count > 40) {
-            clearInterval(interval);
-            crashSound();
-            setTimeout(() => {
-                document.body.innerHTML = `
-                <div style="
-                    background:black;
-                    color:#00ff00;
-                    font-family:Courier New;
-                    font-size:30px;
-                    display:flex;
-                    justify-content:center;
-                    align-items:center;
-                    height:100vh;">
-                    ES BROMA 😭 NO ME MATES NO HICE NADA
-                </div>`;
-            }, 1200);
-        }
-    }, 150);
+function showJoke() {
+    document.body.innerHTML = `
+    <div style="
+        background:black;
+        color:#00ff00;
+        font-family:Courier New;
+        font-size:30px;
+        display:flex;
+        justify-content:center;
+        align-items:center;
+        height:100vh;">
+        ES BROMA 😭 NO ME MATES NO HICE NADA
+    </div>`;
 }
 
 startScreen.addEventListener("click", async () => {
@@ -158,12 +202,17 @@ startScreen.addEventListener("click", async () => {
     await typeText("CIUDAD: BARCELONA, MATARÓ", 50);
     await new Promise(r => setTimeout(r, 1500));
 
-    errorSound();
-    await typeText("ERROR CRÍTICO DEL SISTEMA", 50);
-    await typeText("ACCESO NO AUTORIZADO DETECTADO", 50);
-    await new Promise(r => setTimeout(r, 1000));
+    crashSound();
 
-    spawnErrors();
+    setTimeout(() => {
+        showBSOD();
+        setTimeout(() => {
+            showBootScreen();
+            setTimeout(() => {
+                showJoke();
+            }, 4000);
+        }, 5000);
+    }, 1000);
 });
 </script>
 
