@@ -1,39 +1,111 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login / Registro</title>
-    <link rel="stylesheet" href="style.css">
+<meta charset="UTF-8">
+<title>Terminal</title>
+
+<style>
+    body {
+        background: black;
+        color: #00ff00;
+        font-family: "Courier New", monospace;
+        font-size: 22px;
+        padding: 40px;
+    }
+
+    #terminal::after {
+        content: "_";
+        animation: blink 1s infinite;
+    }
+
+    @keyframes blink {
+        0% { opacity: 1; }
+        50% { opacity: 0; }
+        100% { opacity: 1; }
+    }
+
+    .startScreen {
+        position: fixed;
+        inset: 0;
+        background: black;
+        color: #00ff00;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        font-size: 24px;
+        cursor: pointer;
+    }
+</style>
 </head>
 <body>
-    <div class="container">
-        <div class="form-container">
-            <!-- Formulario de Login -->
-            <div id="login-form" class="form-box">
-                <h2>Iniciar Sesión</h2>
-                <div id="login-message" class="message"></div>
-                <input type="email" id="login-email" placeholder="Email" required>
-                <input type="password" id="login-password" placeholder="Contraseña" required>
-                <button id="login-btn">Entrar</button>
-                <p class="toggle-text">¿No tienes cuenta? <span id="show-register">Regístrate aquí</span></p>
-            </div>
 
-            <!-- Formulario de Registro -->
-            <div id="register-form" class="form-box hidden">
-                <h2>Crear Cuenta</h2>
-                <div id="register-message" class="message"></div>
-                <input type="email" id="register-email" placeholder="Email" required>
-                <input type="password" id="register-password" placeholder="Contraseña (mínimo 6 caracteres)" required>
-                <input type="password" id="register-confirm" placeholder="Confirmar Contraseña" required>
-                <button id="register-btn">Registrarse</button>
-                <p class="toggle-text">¿Ya tienes cuenta? <span id="show-login">Inicia sesión aquí</span></p>
-            </div>
-        </div>
-    </div>
+<div class="startScreen" id="startScreen">
+    CLICK PARA INICIAR SISTEMA
+</div>
 
-    <!-- Firebase SDK -->
-    <script type="module" src="app.js"></script>
+<div id="terminal"></div>
+
+<script>
+const startScreen = document.getElementById("startScreen");
+const terminal = document.getElementById("terminal");
+
+let audioContext;
+
+function beep() {
+    const oscillator = audioContext.createOscillator();
+    const gain = audioContext.createGain();
+
+    oscillator.type = "square";
+    oscillator.frequency.setValueAtTime(800, audioContext.currentTime);
+
+    gain.gain.setValueAtTime(0.05, audioContext.currentTime);
+
+    oscillator.connect(gain);
+    gain.connect(audioContext.destination);
+
+    oscillator.start();
+    oscillator.stop(audioContext.currentTime + 0.03);
+}
+
+function typeText(text, speed = 40) {
+    return new Promise(resolve => {
+        let i = 0;
+        function typing() {
+            if (i < text.length) {
+                terminal.innerHTML += text.charAt(i);
+                if (text.charAt(i) !== " " && text.charAt(i) !== "\n") {
+                    beep();
+                }
+                i++;
+                setTimeout(typing, speed);
+            } else {
+                terminal.innerHTML += "<br><br>";
+                resolve();
+            }
+        }
+        typing();
+    });
+}
+
+startScreen.addEventListener("click", async () => {
+    startScreen.style.display = "none";
+
+    audioContext = new (window.AudioContext || window.webkitAudioContext)();
+
+    await typeText("BIENVENIDO", 60);
+    await new Promise(r => setTimeout(r, 2000));
+
+    await typeText("EXTRAYENDO IP...", 50);
+    await new Promise(r => setTimeout(r, 2000));
+
+    await typeText("INFORMACIÓN DETECTADA:", 50);
+    await typeText("NOMBRE: DANI MARMOY", 50);
+    await typeText("CIUDAD: BARCELONA, MATARÓ", 50);
+    await new Promise(r => setTimeout(r, 2000));
+
+    await typeText("ES BROMA NO ME MATES NO HICE NADA", 60);
+});
+</script>
+
 </body>
 </html>
-
